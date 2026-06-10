@@ -1,19 +1,22 @@
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  // 'root' is no longer needed here if Vercel's Root Directory is set to 'final01'
-  
-  server: {
-    port: 5500, // Kept safely for your local 'npm run dev' sessions
-    host: true
-  },
+  // 1. Tell Vite your source files live inside final01
+  root: 'final01', 
   
   build: {
+    // 2. Tell Vite to jump OUT of final01 and put the finished build in the root
+    outDir: '../dist',
+    emptyOutDir: true,
     minify: 'esbuild',
   },
   
+  server: {
+    port: 5500,
+    host: true
+  },
+  
   esbuild: {
-    // Automatically drops all console.log and debugger statements on deployment build
-    drop: ['console', 'debugger'], 
+    drop: ['console', 'debugger'],
   }
 })
