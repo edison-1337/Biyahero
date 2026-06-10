@@ -1,0 +1,17 @@
+{
+  "name": "jeppers",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.103.3",
+    "heap-js": "^2.7.1",
+    "kdbush": "^4.1.0"
+  },
+  "devDependencies": {
+    "vite": "^7.3.1"
+  }
+}

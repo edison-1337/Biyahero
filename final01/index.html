@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICCT Jeepney Route Planner | Cainta Campus</title>
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.fullscreen/Control.FullScreen.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css" rel="stylesheet">
+    <link rel="stylesheet" href="Final.css">
+
+    <!-- Chatbot -->
+    <script
+        src="https://www.tuqlas.com/chatbot.js"
+        data-key="tq_live_677ccd7396940bfabaee440f89a1472f6709ae89"
+        data-api="https://www.tuqlas.com"
+        defer>
+    </script>
+</head>
+
+<body>
+
+    <!-- ========== HEADER ========== -->
+    <header>
+        <div class="logo-group">
+            <a href="#home">
+                <img src="pics/logogs1.png" class="logo-img" alt="Biyahero Logo">
+            </a>
+            <a href="#home" class="logo">BIYAHERO</a>
+        </div>
+
+        <div class="menu-toggle" id="menuToggle">
+            <i class='bx bx-menu'></i>
+        </div>
+
+        <div class="nav-group" id="navGroup">
+            <nav>
+                <a href="#home">Home</a>
+                <a href="#services">Services</a>
+                <a href="#about">About</a>
+                <a href="#Contact">Contact</a>
+                <button id="loginBtn" style="display: block;">Login</button>
+                <button id="logoutBtn">Logout</button>
+            </nav>
+
+            <label class="switch small-switch">
+                <input type="checkbox" id="darkToggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </header>
+
+    <!-- ========== MAIN CONTENT ========== -->
+    <div class="container" id="home">
+
+        <!-- Hero Section -->
+        <section class="hero">
+            <h2>Smart Travel for the Modern ICCT Student</h2>
+            <p>Plan your route to ICCT Cainta with precision. Calculate fares, manage transfers, and never miss a class.</p>
+            <a href="#location-section" class="startbtn" id="click">Start Planning Your Route</a>
+        </section>
+
+        <!-- How It Works Section -->
+        <section class="how-it-works">
+            <h3>How It Works</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Step</th>
+                        <th>Action</th>
+                        <th>Benefit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Input Location</td>
+                        <td>Detects your current spot or preferred pickup point.</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Get Routes</td>
+                        <td>View multiple jeepney options with total travel time.</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Check Fares</td>
+                        <td>See the total cost for the entire trip, including transfers.</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Arrive</td>
+                        <td>Follow step-by-step transfer instructions to the campus gate.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Map / Location Section -->
+        <section class="location-section" id="location-section">
+            <h2>MAPS</h2>
+
+            <div class="map-container-wrapper" style="position: relative; width: 100%;">
+                <div id="map">
+                    <div class="search-container">
+                        <button class="btn" onclick="useCurrentLocation()">Use My Location</button>
+                        <div class="search-box">
+                            <input type="text" id="locationInput" placeholder="Enter location">
+                            <div id="suggestions"></div>
+                        </div>
+                        <button id="exitBtn" style="display: none;">✕</button>
+                    </div>
+
+                    <div id="routeStatusBar"></div>
+                        <button id="toggleRouteBtn" onclick="window.toggleRoutePanel()" title="Hide Details" style="display:none;">◀</button>
+                    <div id="routeInfo"></div>
+
+                    <div id="mapLoader" class="loader-overlay" style="display: none;">
+                        <div class="spinner"></div>
+                        <p class="loader-text">Calculating routes...</p>
+                    </div>
+                </div>
+                    <div class="disclaimer-container">
+                    <p class="route-disclaimer">
+                        <b>Disclaimer:</b> Routes are community-contributed and may change without notice.
+                        Please verify route information before traveling.
+                </p>
+            </div>
+            </div>
+        </section>
+
+        <!-- Fare Matrix Section -->
+        <div style="text-align: center; margin-top: 3rem;">
+   
+            <blockquote><b>"Built by the community, for the community. Commute made simple."</b></blockquote>
+
+            <a href="#" id="viewFareBtn" class="btn">View Fare Matrix</a>
+            <div id="farePopup" class="popup-overlay">
+                <div class="popup-content">
+                    <span class="close-icon">&times;</span>
+                    <h2 style="margin-top: 0;">Fare Matrix</h2>
+                    <img src="./pics/fare.png" alt="PUJ Fare Guide" class="matrix-img">
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- /.container -->
+
+    <!-- ========== SERVICES SECTION ========== -->
+    <section class="services" id="services">
+        <h2 class="section-title">Our Services</h2>
+
+        <div class="services-container">
+            <div class="service-card">
+                <img src="pics/plan-removebg-preview.png" alt="Route Planning">
+                <h3>Route Planning</h3>
+                <hr>
+                <p>
+                    The Route Planning feature enables commuters to identify the most efficient route to reach
+                    their destination at ICCT Colleges Cainta. It provides route options that help users select
+                    the most convenient and time-efficient path for their travel.
+                </p>
+            </div>
+
+            <div class="service-card">
+                <img src="pics/money-removebg-preview.png" alt="Fare Computation">
+                <h3>Fare Computation</h3>
+                <hr>
+                <p>
+                    The Fare Computation feature calculates the estimated fare required for a selected route.
+                    It also provides information about the standard fare rates and applicable discounts for
+                    students, senior citizens, and other eligible commuters when using public transportation.
+                </p>
+            </div>
+
+            <div class="service-card">
+                <img src="pics/transfer.png" alt="Transfer Suggestion">
+                <h3>Transfer Suggestion</h3>
+                <hr>
+                <p>
+                    The Transfer Suggestion feature recommends possible transfer points along the selected route.
+                    This allows commuters to identify the most optimal way to reach their destination while
+                    minimizing confusion during their trip.
+                </p>
+            </div>
+        </div>
+
+        <!-- ========== ABOUT SECTION (nested inside services) ========== -->
+        <section class="about" id="about">
+            <div class="about-container">
+                <div class="about-image">
+                    <img src="pics/jeep.jpg" class="about-img light-img" alt="Jeepney">
+                    <img src="pics/jeep(dark).jpg" class="about-img dark-img" alt="Jeepney Dark">
+                </div>
+
+                <div class="about-text">
+                    <h2>About the System</h2>
+                    <p>
+                        The ICCT Jeepney Route Planner is a web-based platform designed to help students and
+                        commuters easily navigate jeepney routes going to and from ICCT Colleges Cainta Campus.
+                    </p>
+                    <p>
+                        The system allows users to select their starting point, destination, and view the
+                        appropriate jeepney routes along with fare information.
+                    </p>
+                    <p>
+                        This platform was developed as part of an academic project to improve transportation
+                        accessibility and commuter experience for ICCT students.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </section>
+    <!-- /.services -->
+
+    <!-- ========== FOOTER ========== -->
+    <footer id="Contact">
+        <div class="footer-container">
+
+            <div class="footer-brand">
+                <a href="#home" class="logo">BIYAHERO</a>
+                <p class="footer-description">
+                    Your go-to commute companion for ICCT Cainta—faster, easier, stress-free.
+                </p>
+            </div>
+
+            <div class="footer-legal">
+                <h3>Contact Us:</h3>
+                <p>
+                    <i class="ri-phone-line"></i>
+                    <a href="tel:+639392395599">+63 939 239 5599</a>
+                </p>
+                <p>
+                    <i class="ri-mail-line"></i>
+                    <a href="mailto:biyahero2026@.com.ph">biyahero2026@.com.ph</a>
+                </p>
+                <p>
+                    <i class="ri-map-pin-line"></i>
+                    ICCT Bldg, 2 V.V. Soliven Ave II, Cainta, Rizal
+                </p>
+            </div>
+
+        </div>
+
+        <div class="footer-bottom">
+            <p id="copyright"></p>
+        </div>
+    </footer>
+
+    <!-- ========== LOGIN / REGISTER POPUP ========== -->
+    <div id="loginPopup" class="popup-overlay">
+        <div class="popup-content login-modal">
+            <span class="close-login">&times;</span>
+
+            <div class="wrapper">
+                <span class="rotate-bg"></span>
+                <span class="rotate-bg2"></span>
+
+                <!-- Login Form -->
+                <div class="form-box login">
+                    <h2 class="title animation" style="--i:0; --j:21;">Login</h2>
+                    <form id="LoginForm">
+                        <div class="input-box animation" style="--i:1; --j:22;">
+                            <input type="text" id="loginUsername" required>
+                            <label>Username</label>
+                            <i class='bx bxs-user'></i>
+                        </div>
+                        <div class="input-box animation" style="--i:2; --j:23;">
+                            <input type="password" id="loginPassword" required>
+                            <label>Password</label>
+                            <i class='bx bx-hide toggle-password' id="toggleLoginPassword"></i>
+                        </div>
+                        <div class="forgot-password animation" style="--i:2.5; --j:23.5;">
+                            <a href="javascript:void(0)" id="forgotPasswordLink">Forgot Password?</a>
+                        </div>
+                        <button type="submit" class="btn animation" style="--i:3; --j:24;">Login</button>
+                        <div class="linkTxt animation" style="--i:4; --j:25;">
+                            <p>Don't have an account? <a href="#" class="register-link">Sign Up</a></p>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Login Info Text -->
+                <div class="info-text login">
+                    <h2 class="animation" style="--i:0; --j:20;">Welcome Back!</h2>
+                    <p class="animation" style="--i:1; --j:21;">We, Group 14, welcome you to our family.</p>
+                </div>
+
+                <!-- Register Form -->
+                <div class="form-box register">
+                    <h2 class="title animation" style="--i:18; --j:1;">Sign Up</h2>
+                    <form class="RegisterForm">
+                        <div class="input-box animation" style="--i:18; --j:1;">
+                            <input type="text" id="registerUsername" required>
+                            <label>Username</label>
+                            <i class='bx bxs-user'></i>
+                        </div>
+                        <div class="input-box animation" style="--i:19; --j:2;">
+                            <input type="email" id="registerEmail" required>
+                            <label>Email</label>
+                            <i class='bx bxs-envelope'></i>
+                        </div>
+                        <div class="input-box animation" style="--i:20; --j:3;">
+                            <input type="password" id="registerPassword" required>
+                            <label>Password</label>
+                            <i class='bx bx-hide toggle-password' id="toggleRegisterPassword"></i>
+                        </div>
+                        <button type="submit" class="btn animation" style="--i:21; --j:4;">Sign Up</button>
+                        <div class="linkTxt animation" style="--i:22; --j:5;">
+                            <p>Already have an account? <a href="#" class="login-link">Login</a></p>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Forgot Password Modal -->
+                <div id="forgotModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close-modal">&times;</span>
+
+                        <h2>Reset Password</h2>
+                        <p>Enter your email address and we'll send you a password reset link.</p>
+
+                        <div class="input-box">
+                            <input type="email" id="resetEmail" required>
+                            <label>Email Address</label>
+                            <i class='bx bxs-envelope'></i>
+                        </div>
+
+                        <button id="sendResetLink" class="btn">
+                            Send Reset Link
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Register Info Text -->
+                <div class="info-text register">
+                    <h2 class="animation" style="--i:17; --j:0;">Group 14</h2>
+                    <p class="animation" style="--i:18; --j:1;">Jeepney Route Planning System for ICCT Cainta.</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- /#loginPopup -->
+
+    <!-- ========== RESET PASSWORD MODAL ========== -->
+    <div id="resetPasswordModal" class="popup-overlay" style="display: none;">
+        <div class="popup-content">
+
+            <div class="reset-card">
+
+                <div class="reset-header">
+                    <i class='bx bx-lock-alt'></i>
+                    <h2>Create New Password</h2>
+                    <p>Enter and confirm your new password.</p>
+                </div>
+
+                <form id="resetForm">
+
+                    <div class="input-field">
+                        <input type="password" id="newPassword" placeholder="New Password" required>
+                        <i class='bx bx-hide toggle-password'></i>
+                    </div>
+
+                    <div class="input-field">
+                        <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+                        <i class='bx bx-hide toggle-password'></i>
+                    </div>
+
+                    <button type="submit">Update Password</button>
+
+                    <div id="message"></div>
+
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+    <!-- /#resetPasswordModal -->
+
+    <!-- ========== SCRIPTS ========== -->
+
+    <!-- Leaflet & Plugins (must load before map.js) -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <script src="https://unpkg.com/leaflet.fullscreen/Control.FullScreen.js"></script>
+
+    <!-- App Modules -->
+    <script type="module" src="auth.js"></script>
+    <script type="module" src="script.js"></script>
+    <script type="module" src="map.js"></script>
+    <script type="module" src="final.js"></script>
+
+
+</body>
+
+</html>
