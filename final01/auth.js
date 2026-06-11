@@ -71,7 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (error) {
         console.error(error.message);
       } else {
-        window.location.href = "/login";
+        window.location.href = windows.location.origin;
       }
     });
   }
