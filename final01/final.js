@@ -157,7 +157,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     logoutBtn.addEventListener("click", async () => {
         await supabase.auth.signOut();
-        window.location.href = windows.location.origin;
+        window.location.href = window.location.origin;
     });
 });
 
